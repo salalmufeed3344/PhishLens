@@ -35,79 +35,79 @@
   "model": {
     "type": "RandomForestClassifier",
     "params": {
-      "n_estimators": 250,
-      "max_depth": 24,
+      "n_estimators": 120,
+      "max_depth": 18,
       "min_samples_leaf": 2,
       "class_weight": "balanced_subsample"
     },
-    "test_accuracy": 0.9102,
-    "test_precision": 0.9294,
-    "test_recall": 0.8777,
-    "test_f1": 0.9028,
-    "test_roc_auc": 0.971,
-    "test_false_positive_rate": 0.0603,
+    "test_accuracy": 0.9067,
+    "test_precision": 0.9268,
+    "test_recall": 0.8725,
+    "test_f1": 0.8988,
+    "test_roc_auc": 0.9689,
+    "test_false_positive_rate": 0.0623,
     "confusion_matrix": {
-      "tn": 1402,
-      "fp": 90,
-      "fn": 165,
-      "tp": 1184
+      "tn": 1399,
+      "fp": 93,
+      "fn": 172,
+      "tp": 1177
     }
   },
   "rule_detector": {
-    "test_accuracy_3level": 0.5266,
+    "test_accuracy_3level": 0.5216,
     "note": "Rule score alone, mapped with the tuned thresholds."
   },
   "combined": {
-    "test_accuracy_3level": 0.8522,
-    "test_high_false_alarm_rate": 0.0462,
-    "test_high_recall": 0.8421,
+    "test_accuracy_3level": 0.8377,
+    "test_high_false_alarm_rate": 0.0228,
+    "test_high_recall": 0.7591,
     "note": "Headline score = 0.5 * rule score + 0.5 * model probability * 100. '3-level accuracy' counts a Medium verdict as wrong because the test truth has only High (phishing) and Low (benign); the High false-alarm rate and recall describe the headline verdict fairly."
   },
   "thresholds": {
-    "low_max": 20,
-    "medium_max": 30,
-    "validation_accuracy": 0.8564
+    "low_max": 25,
+    "medium_max": 35,
+    "validation_accuracy": 0.8446
   },
   "feature_importance": [
     {
       "feature": "subdomain_total_length",
-      "importance": 0.1262
+      "importance": 0.1294
     },
     {
       "feature": "host_length",
-      "importance": 0.0838
+      "importance": 0.0905
     },
     {
       "feature": "entropy_host",
-      "importance": 0.0825
-    },
-    {
-      "feature": "url_length",
-      "importance": 0.0706
+      "importance": 0.0775
     },
     {
       "feature": "tld_is_suspicious",
-      "importance": 0.0646
-    },
-    {
-      "feature": "path_length",
-      "importance": 0.0596
+      "importance": 0.0695
     },
     {
       "feature": "digit_ratio_url",
-      "importance": 0.0536
+      "importance": 0.0665
+    },
+    {
+      "feature": "url_length",
+      "importance": 0.0616
+    },
+    {
+      "feature": "path_length",
+      "importance": 0.0592
     },
     {
       "feature": "registered_domain_length",
-      "importance": 0.048
+      "importance": 0.0481
     },
     {
       "feature": "longest_digit_run",
-      "importance": 0.0476
+      "importance": 0.0417
     },
     {
       "feature": "entropy_path",
-      "importance": 0.0411
+      "importance": 0.0363
     }
   ],
   "limitations": [

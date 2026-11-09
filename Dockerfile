@@ -19,11 +19,15 @@ RUN pip install -r requirements.txt
 
 COPY . .
 
-# Fetch training data (public feeds), train the model, collect static files.
+# Fetch training data (public feeds), train the model, warm up the checker
+# (first SHAP call compiles numba — do it at build time so the first live
+# user request is fast instead of hanging for minutes on a throttled CPU),
+# then collect static files.
 RUN mkdir -p data \
     && curl --retry 3 -fsSL -o data/online-valid.csv http://data.phishtank.com/data/online-valid.csv \
     && curl --retry 3 -fsSL -o data/top-1m.csv.zip https://tranco-list.eu/top-1m.csv.zip \
     && python scripts/train.py \
+    && python -c "import django, os; os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'phishlens.settings'); django.setup(); from detector import model; model.check_url('https://example.com'); print('warm-up done')" \
     && python manage.py collectstatic --noinput \
     && python manage.py migrate --noinput
 

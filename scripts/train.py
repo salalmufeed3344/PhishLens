@@ -338,8 +338,11 @@ def main() -> None:
     print(f"  training rows: {len(X_train)} "
           f"(phish {int(y_train.sum())})")
 
+    # Slim forest: the full 250-tree model is too heavy for a 512 MB free
+    # container (first SHAP call compiles numba and spikes RAM, and live
+    # checks hang). 120 trees keeps the accuracy; verified by retraining.
     clf = RandomForestClassifier(
-        n_estimators=250, max_depth=24, min_samples_leaf=2,
+        n_estimators=120, max_depth=18, min_samples_leaf=2,
         class_weight="balanced_subsample", n_jobs=-1,
         random_state=RANDOM_STATE,
     )
@@ -401,7 +404,7 @@ def main() -> None:
         },
         "model": {
             "type": "RandomForestClassifier",
-            "params": {"n_estimators": 250, "max_depth": 24,
+            "params": {"n_estimators": 120, "max_depth": 18,
                        "min_samples_leaf": 2,
                        "class_weight": "balanced_subsample"},
             "test_accuracy": round(float(accuracy_score(y[test_idx], test_pred)), 4),
