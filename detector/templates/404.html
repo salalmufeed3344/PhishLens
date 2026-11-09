@@ -3,10 +3,12 @@
 {% block title %}Page not found · PhishLens{% endblock %}
 
 {% block content %}
+<div class="container">
 <h1>This page doesn't exist</h1>
 <p class="lede">The address you followed isn't a page on PhishLens. It may have
 been typed wrong, or the link may be out of date.</p>
 <form action="{% url 'home' %}" method="get">
   <button type="submit">Check a link instead</button>
 </form>
+</div>
 {% endblock %}

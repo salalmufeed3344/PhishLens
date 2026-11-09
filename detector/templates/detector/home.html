@@ -1,76 +1,151 @@
 {% extends "detector/base.html" %}
 
 {% block content %}
-<h1>Is this link a phish?</h1>
-<p class="lede">Paste a suspicious link. PhishLens reads the address itself — its
-structure, its domain, the words it uses — and tells you the risk and
-<strong>why</strong>, in plain language. The link is never opened or visited.</p>
+<div class="container">
+  <div class="hero-grid">
+    <div>
+      <p class="tagline">Explainable phishing URL detection — built for IceHacks 2026.</p>
+      <h1>Is this link a phish?</h1>
+      <p class="lede">Paste a suspicious link. PhishLens reads the address itself:
+      its structure, its domain, the words it uses. It tells you the risk and
+      <strong>why</strong>, in plain language. The link is never opened or visited.</p>
 
-{% if error %}
-<div class="error">{{ error }}</div>
-{% endif %}
+      {% if error %}
+      <div class="error">{{ error }}</div>
+      {% endif %}
 
-<form class="check-form" id="check-form" action="{% url 'check' %}" method="post">
-  {% csrf_token %}
-  <input type="text" id="url-input" name="url" placeholder="https://example.com/login?verify=1"
-         value="{{ submitted_url|default:'' }}" autocomplete="off" spellcheck="false"
-         aria-label="URL to check" autofocus>
-  <button type="submit" id="check-button">Check link</button>
-</form>
-<div class="error" id="inline-error" role="alert" hidden></div>
+      <div class="checker">
+        <h2>Paste a link to check</h2>
+        <form class="check-form" id="check-form" action="{% url 'check' %}" method="post">
+          {% csrf_token %}
+          <input type="text" id="url-input" name="url" placeholder="https://example.com/login?verify=1"
+                 value="{{ submitted_url|default:'' }}" autocomplete="off" spellcheck="false"
+                 aria-label="URL to check" autofocus>
+          <button type="submit" id="check-button">Check link</button>
+        </form>
+        <div class="error" id="inline-error" role="alert" hidden></div>
 
-<div class="progress-panel" id="progress-panel" hidden aria-live="polite">
-  <div class="progress-title">Analysing the link…</div>
-  <div class="progress-bar"><div class="progress-fill" id="progress-fill"></div></div>
-  <ul class="progress-steps" id="progress-steps">
-    <li data-step="0">Reading the address</li>
-    <li data-step="1">Running the rule detector (29 checks)</li>
-    <li data-step="2">Running the model</li>
-    <li data-step="3">Explaining the result</li>
-  </ul>
-  <p class="progress-note">Usually takes a few seconds — the model runs on a small free server.</p>
+        <div class="progress-panel" id="progress-panel" hidden aria-live="polite">
+          <div class="progress-title">Analysing the link…</div>
+          <div class="progress-bar"><div class="progress-fill" id="progress-fill"></div></div>
+          <ul class="progress-steps" id="progress-steps">
+            <li data-step="0">Reading the address</li>
+            <li data-step="1">Running the rule detector (29 checks)</li>
+            <li data-step="2">Running the model</li>
+            <li data-step="3">Explaining the result</li>
+          </ul>
+          <p class="progress-note">Usually takes a few seconds — the model runs on a small free server.</p>
+        </div>
+        <p class="hint">No account. Nothing is stored. The URL is analysed on this server and discarded. Press Ctrl+Enter to check.</p>
+
+        <div class="examples">
+          Try one:
+          <button type="button" onclick="fillExample('{{ example_phishing|escapejs }}')">a suspicious-looking login link</button>
+          or
+          <button type="button" onclick="fillExample('{{ example_legit|escapejs }}')">a normal Wikipedia link</button>
+        </div>
+      </div>
+    </div>
+
+    {# Static example result: snapshot of a real check of the fake-PayPal login link (live deployment ec0fae8f, 9 Nov 2026); hardcoded on purpose, the home page never runs the model on load. #}
+    <div class="mockup" aria-label="Example check result">
+      <div class="mockup-head">
+        <span class="mockup-label">RESULT — EXAMPLE CHECK</span>
+        <span class="badge badge-high">HIGH&nbsp;&nbsp;61/100</span>
+      </div>
+      <p class="mockup-url">http://paypal-secure-login.com/verify/account/update</p>
+      <div class="mockup-stats">
+        <div>
+          <div class="stat-num num">61<small>/100</small></div>
+          <div class="stat-label">Headline score</div>
+        </div>
+        <div>
+          <div class="stat-num num">49</div>
+          <div class="stat-label">Rule detector</div>
+        </div>
+        <div>
+          <div class="stat-num num">72.6%</div>
+          <div class="stat-label">Model probability</div>
+        </div>
+      </div>
+      <ul class="mockup-findings">
+        <li><span class="rid">R06a</span><span class="fname">Top-target brand look-alike domain</span><span class="w num">+26</span></li>
+        <li><span class="rid">R10a</span><span class="fname">Multiple strong trigger words</span><span class="w num">+12</span></li>
+        <li><span class="rid">R12</span><span class="fname">Long run of digits</span><span class="w num">+6</span></li>
+        <li><span class="rid">R08</span><span class="fname">Plain HTTP</span><span class="w num">+5</span></li>
+      </ul>
+      <p class="mockup-foot">URL text only. The link was never opened or visited.</p>
+    </div>
+  </div>
 </div>
-<p class="hint">No account. Nothing is stored. The URL is analysed on this server and discarded. Press Ctrl+Enter to check.</p>
 
-<div class="examples">
-  Try one:
-  <button type="button" onclick="fillExample('{{ example_phishing|escapejs }}')">a suspicious-looking login link</button>
-  or
-  <button type="button" onclick="fillExample('{{ example_legit|escapejs }}')">a normal Wikipedia link</button>
-</div>
-
-<section class="section">
-  <h2>How it works</h2>
-  <ol class="steps">
-    <li>
-      <strong>Feature extraction</strong>
-      <p>45 features are measured from the URL string alone: lengths, dots and subdomains, special characters, whether the host is an IP number, punycode, link shorteners, sensitive words, brand names in the wrong place, and the randomness of the domain name.</p>
-    </li>
-    <li>
-      <strong>Two detectors, side by side</strong>
-      <p>A transparent rule-based detector scores weighted warning signs, and a Random Forest trained on verified PhishTank URLs and Tranco domains gives a phishing probability. The headline score is the average of the two.</p>
-    </li>
-    <li>
-      <strong>Explanations, not just a score</strong>
-      <p>Every triggered rule is listed with its weight, and SHAP attributions from the model are translated into plain sentences — so you learn the warning signs, not just the verdict.</p>
-    </li>
-  </ol>
-  <p class="note">See the <a href="{% url 'metrics' %}">model &amp; metrics page</a> for the real holdout results, the datasets, and the honest limitations.</p>
+<section class="section-wide band-soft">
+  <div class="container">
+    <h2 class="section-title">How it works</h2>
+    <p class="section-lede">One paste runs the whole examination. Nothing about the link leaves the page unexplained.</p>
+    <ol class="steps">
+      <li>
+        <span class="step-num num">01</span>
+        <div>
+          <strong>Feature extraction</strong>
+          <p>45 features are measured from the URL string alone: lengths, dots and subdomains, special characters, whether the host is an IP number, punycode, link shorteners, sensitive words, brand names in the wrong place, and the randomness of the domain name.</p>
+        </div>
+      </li>
+      <li>
+        <span class="step-num num">02</span>
+        <div>
+          <strong>Two detectors, side by side</strong>
+          <p>A transparent rule-based detector scores weighted warning signs, and a Random Forest trained on verified PhishTank URLs and Tranco domains gives a phishing probability. The headline score is the average of the two.</p>
+        </div>
+      </li>
+      <li>
+        <span class="step-num num">03</span>
+        <div>
+          <strong>Explanations, not just a score</strong>
+          <p>Every triggered rule is listed with its weight, and SHAP attributions from the model are translated into plain sentences — so you learn the warning signs, not just the verdict.</p>
+        </div>
+      </li>
+    </ol>
+  </div>
 </section>
 
-<section class="section">
-  <h2>One paste, every check</h2>
-  <p class="note">A single check runs all of these — including the tricks most people have never heard of:</p>
-  <ul class="reasons">
-    <li><strong>The “@” trick</strong> — everything before @ is ignored; the address you see is a decoy.</li>
-    <li><strong>Typosquat</strong> — a domain one or two letters from a real brand (paypaI, gooogle).</li>
-    <li><strong>Open-redirect laundering</strong> — the link starts on a trusted site but redirects elsewhere.</li>
-    <li><strong>File-extension domains</strong> — invoice.zip looks like a file, but it is a website.</li>
-    <li><strong>Invisible characters</strong> — hidden letters that change what the address really is.</li>
-    <li><strong>Free-hosting logins</strong> — a fake login page on a platform anyone can publish on.</li>
-    <li><strong>Homoglyphs</strong> — look-alike letters from another alphabet impersonating a brand.</li>
-  </ul>
-  <p class="note"><strong>HTTPS does not mean safe.</strong> Most phishing sites now use HTTPS — a padlock means the connection is encrypted, not that the site is honest. PhishLens treats HTTPS as a weak signal only.</p>
+<section class="section-wide">
+  <div class="container">
+    <h2 class="section-title">One paste, every check</h2>
+    <p class="section-lede">A single check runs all of these — including the tricks most people have never heard of.</p>
+    <ul class="reasons tricks">
+      <li><h3>The “@” trick</h3><p>Everything before @ is ignored; the address you see is a decoy.</p></li>
+      <li><h3>Typosquat</h3><p>A domain one or two letters from a real brand (paypaI, gooogle).</p></li>
+      <li><h3>Open-redirect laundering</h3><p>The link starts on a trusted site but redirects elsewhere.</p></li>
+      <li><h3>File-extension domains</h3><p>invoice.zip looks like a file, but it is a website.</p></li>
+      <li><h3>Invisible characters</h3><p>Hidden letters that change what the address really is.</p></li>
+      <li><h3>Free-hosting logins</h3><p>A fake login page on a platform anyone can publish on.</p></li>
+      <li><h3>Homoglyphs</h3><p>Look-alike letters from another alphabet impersonating a brand.</p></li>
+    </ul>
+
+    <div class="warn-panel">
+      <h3><span class="warn-sq"></span>HTTPS does not mean safe.</h3>
+      <p>Most phishing sites now use HTTPS — a padlock means the connection is encrypted, not that the site is honest. PhishLens treats HTTPS as a weak signal only.</p>
+    </div>
+  </div>
+</section>
+
+<section class="section-wide">
+  <div class="container">
+    <h2 class="section-title">Measured, not claimed</h2>
+    <p class="section-lede">Holdout results on URLs the model had never seen. The full tables live on the <a href="{% url 'metrics' %}">model &amp; metrics page</a>.</p>
+    <table class="metrics-table">
+      <thead>
+        <tr><th>Metric</th><th>What it means</th><th class="result">Result</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>Accuracy</td><td>Share of verdicts that were right</td><td class="result num">91.6%</td></tr>
+        <tr><td>Precision</td><td>Of the links flagged phishing, how many really were</td><td class="result num">92.9%</td></tr>
+        <tr><td>Recall</td><td>Of the real phishing links, how many were caught</td><td class="result num">87.8%</td></tr>
+        <tr><td>ROC-AUC</td><td>How well the model separates phish from legitimate</td><td class="result num">0.969</td></tr>
+      </tbody>
+    </table>
+  </div>
 </section>
 
 <script>

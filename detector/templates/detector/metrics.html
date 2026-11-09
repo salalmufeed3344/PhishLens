@@ -3,6 +3,7 @@
 {% block title %}Model &amp; metrics · PhishLens{% endblock %}
 
 {% block content %}
+<div class="container">
 <h1>Model &amp; metrics</h1>
 <p class="lede">Everything below is measured on a held-out test set the model never
 saw during training — not estimated, not rounded up. The rule-based
@@ -60,7 +61,7 @@ detector is reported alongside, on the same test set.</p>
 
 <section class="section">
   <h2>Data &amp; splits</h2>
-  <table class="plain">
+  <table class="plain splits">
     <tbody>
       <tr><td>Phishing URLs</td><td class="num">{{ metrics.dataset.phishing_count }}</td><td>{{ metrics.dataset.phishing_source }}</td></tr>
       <tr><td>Benign URLs</td><td class="num">{{ metrics.dataset.benign_count }}</td><td>{{ metrics.dataset.benign_source }}</td></tr>
@@ -90,4 +91,5 @@ detector is reported alongside, on the same test set.</p>
 {% endif %}
 
 <p class="note">Reproduce everything: <code>python scripts/train.py</code> downloads nothing new (datasets live in <code>data/</code>), rebuilds the model, and rewrites these numbers.</p>
+</div>
 {% endblock %}

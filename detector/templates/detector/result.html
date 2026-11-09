@@ -3,6 +3,7 @@
 {% block title %}Result — {{ result.final_level }} risk · PhishLens{% endblock %}
 
 {% block content %}
+<div class="container">
 <h1>Result</h1>
 
 <div class="verdict-row">
@@ -53,7 +54,7 @@
         <th scope="row">Random Forest model</th>
         {% if result.model_available and result.model_probability is not None %}
         <td class="d-score">{{ result.model_probability }}%</td>
-        <td class="d-note">{{ result.model_level }} risk · phishing probability</td>
+        <td class="d-note">phishing probability</td>
         {% else %}
         <td class="d-score">—</td>
         <td class="d-note">Trained model not loaded{% if result.model_error %}: {{ result.model_error }}{% endif %}. Showing the rule-based check only.</td>
@@ -97,7 +98,7 @@
   {% endif %}
 
   {% if result.shap_reasons.raised %}
-  <h3 style="margin-top: 20px;">What pushed the model toward phishing</h3>
+  <h3 style="margin-top: 24px;">What pushed the model toward phishing</h3>
   <ul class="reasons">
     {% for sentence in result.shap_reasons.raised %}
     <li>{{ sentence }}</li>
@@ -105,7 +106,7 @@
   </ul>
   {% endif %}
   {% if result.shap_reasons.lowered %}
-  <h3 style="margin-top: 20px;">What pushed the model toward legitimate</h3>
+  <h3 style="margin-top: 24px;">What pushed the model toward legitimate</h3>
   <ul class="reasons">
     {% for sentence in result.shap_reasons.lowered %}
     <li class="good">{{ sentence }}</li>
@@ -134,4 +135,5 @@
 <form action="{% url 'home' %}" method="get" style="margin-top: 24px;">
   <button type="submit" class="btn-ghost btn">Check another link</button>
 </form>
+</div>
 {% endblock %}

@@ -1,0 +1,38 @@
+{% extends "detector/base.html" %}
+
+{% block title %}About · PhishLens{% endblock %}
+
+{% block content %}
+<div class="container legal">
+<h1>About PhishLens</h1>
+<p class="lede">PhishLens is an explainable phishing URL detector: paste a
+suspicious link, get a verdict — and the reasons behind it, in plain
+language.</p>
+
+<h2>How it works</h2>
+<p>Every check runs two detectors side by side. First, 45 features are
+measured from the URL string alone, and a transparent rule-based
+detector scores 29 named warning signs — the “@” trick, typosquats,
+homoglyphs, invisible characters, open-redirect laundering,
+file-extension domains, free-hosting logins, and more. Second, a Random
+Forest model trained on verified PhishTank phishing URLs and Tranco
+benign domains gives a phishing probability. The headline score is the
+average of the two. SHAP attributions from the model are translated
+into plain sentences, so each result explains itself.</p>
+
+<h2>URL-only, on purpose</h2>
+<p>PhishLens never opens, downloads, or visits the link you paste. The
+analysis works on the text of the address alone, which keeps the check
+fast and keeps you safe from the very page you are suspicious of. The
+trade-off is honest and stated everywhere: a phishing page hosted on a
+legitimate or compromised domain can still slip through, because the
+address itself looks clean.</p>
+
+<h2>Built for IceHacks 2026</h2>
+<p>PhishLens was built by Salal Mufeed for IceHacks 2026. The code is
+open source under the MIT licence:
+<a href="https://github.com/salalmufeed3344/PhishLens">github.com/salalmufeed3344/PhishLens</a>.
+The <a href="{% url 'metrics' %}">model &amp; metrics page</a> shows
+the real holdout results, the datasets, and the honest limitations.</p>
+</div>
+{% endblock %}

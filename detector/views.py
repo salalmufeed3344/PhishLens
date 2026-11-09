@@ -1,4 +1,4 @@
-"""PhishLens views: one-page checker, metrics page, JSON API."""
+"""PhishLens views: one-page checker, metrics page, legal pages, JSON API."""
 
 from __future__ import annotations
 
@@ -61,6 +61,12 @@ def check(request):
 def metrics(request):
     metrics = model_api.get_metrics()
     return render(request, "detector/metrics.html", {"metrics": metrics})
+
+
+def legal_page(request, page):
+    """One view for the four plain legal pages: privacy, cookies,
+    terms, about. The page name comes from the URL pattern only."""
+    return render(request, f"detector/{page}.html")
 
 
 @csrf_exempt

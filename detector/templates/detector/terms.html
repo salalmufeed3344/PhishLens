@@ -1,0 +1,36 @@
+{% extends "detector/base.html" %}
+
+{% block title %}Terms · PhishLens{% endblock %}
+
+{% block content %}
+<div class="container legal">
+<h1>Terms</h1>
+<p class="lede">PhishLens is a free service, provided as-is. These terms
+are short on purpose — read them in a minute.</p>
+
+<h2>What the verdict means</h2>
+<p>A verdict is guidance, not a guarantee. A <strong>Low</strong> verdict
+does not mean a link is safe, and a <strong>High</strong> verdict is not
+proof of maliciousness. PhishLens analyses only the text of the address
+— it cannot see what a page does, and it cannot catch phishing hosted
+on a legitimate or compromised domain. Do not rely on it alone for
+security decisions. When in doubt, type the address yourself, or check
+with the organisation directly.</p>
+
+<h2>No warranty</h2>
+<p>The service is provided as-is, without warranty of any kind. The
+maintainers are not liable for anything that happens from following —
+or ignoring — a verdict.</p>
+
+<h2>Fair use</h2>
+<p>Use the service for checking links you have a reason to check. Do
+not hammer it with automated requests; excessive automated use may be
+rate-limited to keep the service usable for everyone. Do not use
+PhishLens to facilitate wrongdoing.</p>
+
+<h2>Open source</h2>
+<p>The code is open source under the MIT licence — see the
+<a href="{% url 'about' %}">about page</a>. These terms may change as
+the project develops; the version on this page is the current one.</p>
+</div>
+{% endblock %}

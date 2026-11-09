@@ -9,23 +9,44 @@
   <link rel="stylesheet" href="{% static 'detector/style.css' %}">
 </head>
 <body>
-  <div class="wrap">
-    <header class="site">
-      <a class="brand" href="{% url 'home' %}">Phish<span>Lens</span></a>
-      <nav>
+  <div class="container">
+    <header class="site-nav">
+      <a class="wordmark" href="{% url 'home' %}">PhishLens</a>
+      <nav class="nav-links">
         <a href="{% url 'home' %}">Check a link</a>
         <a href="{% url 'metrics' %}">Model &amp; metrics</a>
       </nav>
+      <a class="btn-pill" href="{% url 'home' %}">Check a link</a>
     </header>
-    <p class="tagline">Explainable phishing URL detection — built for IceHacks 2026.</p>
-
-    {% block content %}{% endblock %}
-
-    <footer class="site">
-      <p>PhishLens analyses the URL text only. It never opens, downloads or visits the link you paste.</p>
-      <p>Results are an estimate of risk, not a guarantee — a clean-looking link can still be unsafe, and a flagged link is not proof of maliciousness. When in doubt, type the address yourself.</p>
-      <p>Built for IceHacks 2026.</p>
-    </footer>
   </div>
+
+  {% block content %}{% endblock %}
+
+  <footer class="site">
+    <div class="footer-grid">
+      <div class="footer-brand">
+        <span class="wordmark">PhishLens</span>
+        <p>PhishLens analyses the URL text only. It never opens, downloads or visits the link you paste.</p>
+        <p>Results are an estimate of risk, not a guarantee — a clean-looking link can still be unsafe, and a flagged link is not proof of maliciousness. When in doubt, type the address yourself.</p>
+      </div>
+      <div>
+        <h4>Product</h4>
+        <ul>
+          <li><a href="{% url 'home' %}">Check a link</a></li>
+          <li><a href="{% url 'metrics' %}">Model &amp; metrics</a></li>
+        </ul>
+      </div>
+      <div>
+        <h4>Legal</h4>
+        <ul>
+          <li><a href="{% url 'privacy' %}">Privacy</a></li>
+          <li><a href="{% url 'cookies' %}">Cookies</a></li>
+          <li><a href="{% url 'terms' %}">Terms</a></li>
+          <li><a href="{% url 'about' %}">About</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="footer-bottom">Built for IceHacks 2026.</div>
+  </footer>
 </body>
 </html>

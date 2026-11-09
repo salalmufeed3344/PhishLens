@@ -1,0 +1,29 @@
+{% extends "detector/base.html" %}
+
+{% block title %}Cookies · PhishLens{% endblock %}
+
+{% block content %}
+<div class="container legal">
+<h1>Cookies</h1>
+<p class="lede">PhishLens uses exactly one cookie — a security cookie that
+protects the check form. There is nothing to consent to beyond it.</p>
+
+<h2>The one cookie</h2>
+<ul>
+  <li><strong>csrftoken</strong> — Django's cross-site request forgery
+  token. It is set when you load the check form and proves the form
+  submission came from this site. It holds no personal data, is not
+  used for tracking, and is not shared with anyone.</li>
+</ul>
+
+<h2>What we do not use</h2>
+<p>No analytics cookies, no advertising cookies, no third-party cookies,
+and no preference cookies — there is nothing to remember about you
+between visits, because there are no accounts and nothing is stored.</p>
+
+<h2>Clearing it</h2>
+<p>You can clear the cookie any time in your browser settings, under
+cookies or site data for this site. Clearing it only means the next
+form submission gets a fresh token — nothing else changes.</p>
+</div>
+{% endblock %}
