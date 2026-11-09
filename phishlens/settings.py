@@ -43,8 +43,10 @@ ALLOWED_HOSTS = [
 ]
 
 # Trust the same hosts for CSRF-protected form posts (the check form).
+# A leading-dot host (e.g. '.deployxa.online') becomes a wildcard origin
+# ('https://*.deployxa.online'), which matches any subdomain.
 CSRF_TRUSTED_ORIGINS = [
-    f'https://{h[1:]}' if h.startswith('.') else f'https://{h}'
+    f'https://*{h}' if h.startswith('.') else f'https://{h}'
     for h in ALLOWED_HOSTS
     if h not in ('127.0.0.1', 'localhost')
 ]
