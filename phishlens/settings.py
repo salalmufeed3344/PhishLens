@@ -43,12 +43,16 @@ ALLOWED_HOSTS = [
 ]
 
 # Trust the same hosts for CSRF-protected form posts (the check form).
-# A leading-dot host (e.g. '.deployxa.online') becomes a wildcard origin
-# ('https://*.deployxa.online'), which matches any subdomain.
+# NOTE (Nov 9): the wildcard-only derivation below LOOKED right and passed
+# locally, but live Django still rejected the origin ("Origin checking
+# failed - https://phishlens.deployxa.online does not match any trusted
+# origins"). The exact origin is a plain string comparison in Django's
+# allowed_origins_exact set, so list it explicitly — that cannot fail the
+# way the wildcard path apparently did on DeployXA. Keep the wildcard too
+# for any other DeployXA subdomain.
 CSRF_TRUSTED_ORIGINS = [
-    f'https://*{h}' if h.startswith('.') else f'https://{h}'
-    for h in ALLOWED_HOSTS
-    if h not in ('127.0.0.1', 'localhost')
+    'https://phishlens.deployxa.online',
+    'https://*.deployxa.online',
 ]
 
 
