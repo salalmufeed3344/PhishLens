@@ -2,8 +2,8 @@
   "dataset": {
     "phishing_source": "PhishTank online-valid.csv (verified=yes, online=yes)",
     "phishing_count": 9502,
-    "benign_source": "Tranco top-1m.csv.zip (top 100k domains, full URLs synthesised with realistic paths) + 240 synthetic benign shortener URLs (de-biasing step)",
-    "benign_count": 9789,
+    "benign_source": "Tranco top-1m.csv.zip (top 100k domains, full URLs synthesised with realistic paths) + 240 synthetic benign shortener URLs (de-biasing step) + 1,500 benign URLs on mainstream new gTLDs (.online/.site/.shop/.tech/...) from Tranco ranks 100k-1M (Nov 9 de-biasing: the top-100k set almost never shows a legitimate new-gTLD site, which taught the model that those endings mean phishing)",
+    "benign_count": 11289,
     "collected": "2026-11-09",
     "features": 45,
     "augmentation": {
@@ -24,13 +24,13 @@
     }
   },
   "splits": {
-    "train": 13553,
-    "validation": 2896,
-    "test": 2841,
+    "train": 14592,
+    "validation": 3081,
+    "test": 3117,
     "grouped_by": "registered domain (no domain leaks across splits)",
-    "train_phishing": 6749,
-    "validation_phishing": 1404,
-    "test_phishing": 1349
+    "train_phishing": 6665,
+    "validation_phishing": 1418,
+    "test_phishing": 1419
   },
   "model": {
     "type": "RandomForestClassifier",
@@ -40,74 +40,74 @@
       "min_samples_leaf": 2,
       "class_weight": "balanced_subsample"
     },
-    "test_accuracy": 0.9067,
-    "test_precision": 0.9268,
-    "test_recall": 0.8725,
-    "test_f1": 0.8988,
-    "test_roc_auc": 0.9689,
-    "test_false_positive_rate": 0.0623,
+    "test_accuracy": 0.9115,
+    "test_precision": 0.9346,
+    "test_recall": 0.8661,
+    "test_f1": 0.899,
+    "test_roc_auc": 0.9708,
+    "test_false_positive_rate": 0.0506,
     "confusion_matrix": {
-      "tn": 1399,
-      "fp": 93,
-      "fn": 172,
-      "tp": 1177
+      "tn": 1612,
+      "fp": 86,
+      "fn": 190,
+      "tp": 1229
     }
   },
   "rule_detector": {
-    "test_accuracy_3level": 0.5216,
+    "test_accuracy_3level": 0.5406,
     "note": "Rule score alone, mapped with the tuned thresholds."
   },
   "combined": {
-    "test_accuracy_3level": 0.8377,
-    "test_high_false_alarm_rate": 0.0228,
-    "test_high_recall": 0.7591,
+    "test_accuracy_3level": 0.8463,
+    "test_high_false_alarm_rate": 0.0224,
+    "test_high_recall": 0.7491,
     "note": "Headline score = 0.5 * rule score + 0.5 * model probability * 100. '3-level accuracy' counts a Medium verdict as wrong because the test truth has only High (phishing) and Low (benign); the High false-alarm rate and recall describe the headline verdict fairly."
   },
   "thresholds": {
     "low_max": 25,
     "medium_max": 35,
-    "validation_accuracy": 0.8446
+    "validation_accuracy": 0.8478
   },
   "feature_importance": [
     {
       "feature": "subdomain_total_length",
-      "importance": 0.1294
+      "importance": 0.1471
     },
     {
       "feature": "host_length",
-      "importance": 0.0905
+      "importance": 0.0827
     },
     {
       "feature": "entropy_host",
-      "importance": 0.0775
-    },
-    {
-      "feature": "tld_is_suspicious",
-      "importance": 0.0695
-    },
-    {
-      "feature": "digit_ratio_url",
-      "importance": 0.0665
+      "importance": 0.0716
     },
     {
       "feature": "url_length",
-      "importance": 0.0616
+      "importance": 0.0664
     },
     {
       "feature": "path_length",
-      "importance": 0.0592
+      "importance": 0.064
+    },
+    {
+      "feature": "digit_ratio_url",
+      "importance": 0.0605
+    },
+    {
+      "feature": "tld_is_suspicious",
+      "importance": 0.0551
     },
     {
       "feature": "registered_domain_length",
-      "importance": 0.0481
+      "importance": 0.0428
     },
     {
       "feature": "longest_digit_run",
-      "importance": 0.0417
+      "importance": 0.0422
     },
     {
-      "feature": "entropy_path",
-      "importance": 0.0363
+      "feature": "subdomain_count",
+      "importance": 0.0396
     }
   ],
   "limitations": [

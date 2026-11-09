@@ -236,6 +236,66 @@ def build_benign_urls(max_n: int, rng: random.Random) -> list[str]:
     return urls
 
 
+# Mainstream generic endings with heavy legitimate use (the same set that
+# lives in features.COMMON_TLDS, minus the old/common ones the top-100k
+# already covers). Used for the de-biasing top-up below.
+MAINSTREAM_NEW_GTLDS = {
+    "online", "site", "shop", "live", "tech", "info", "business",
+    "center", "study", "country", "stream", "support", "party",
+    "science", "link", "today", "fit", "club", "work", "fun", "racing",
+}
+
+
+def build_benign_mainstream_gtld_urls(max_n: int, rng: random.Random) -> list[str]:
+    """Benign URLs on mainstream new gTLDs, from Tranco ranks 100k–1M.
+
+    The main benign set comes from the Tranco top 100k, which is almost
+    all .com/.org/.net — so the model almost never sees a LEGITIMATE
+    .online/.site/.shop site in training, and learns "unusual ending =
+    phishing". That flagged Toolixy itself as High risk (Nov 9). These
+    extra real domains (genuine sites ranked in the top 1M, just below
+    the top 100k cut) teach the model that mainstream new endings host
+    real sites. Same URL synthesis as build_benign_urls; the domains are
+    real, only the paths are synthesised.
+    """
+    with zipfile.ZipFile(DATA_DIR / "top-1m.csv.zip") as z:
+        name = z.namelist()[0]
+        with z.open(name) as fh:
+            domains = []
+            for i, line in enumerate(fh):
+                if i < 100_000:
+                    continue
+                parts = line.decode().strip().split(",")
+                if len(parts) == 2 and parts[1]:
+                    domain = parts[1].strip().lower()
+                    suffix = domain.rsplit(".", 1)[-1]
+                    if suffix in MAINSTREAM_NEW_GTLDS:
+                        domains.append(domain)
+                if len(domains) >= max_n * 4:
+                    break
+    rng.shuffle(domains)
+    paths, weights = zip(*BENIGN_PATH_TEMPLATES)
+    subdomains, sub_weights = zip(*BENIGN_SUBDOMAINS)
+    queries, query_weights = zip(*BENIGN_QUERIES)
+    urls: list[str] = []
+    seen: set[str] = set()
+    for domain in domains:
+        if len(urls) >= max_n:
+            break
+        host = rng.choices(subdomains, weights=sub_weights, k=1)[0] + domain
+        path = _fill_path_template(
+            rng.choices(paths, weights=weights, k=1)[0], rng)
+        query = _fill_query(
+            rng.choices(queries, weights=query_weights, k=1)[0], rng)
+        scheme = "https" if rng.random() < 0.9 else "http"
+        url = f"{scheme}://{host}{path}{query}"
+        if url in seen:
+            continue
+        seen.add(url)
+        urls.append(url)
+    return urls
+
+
 def extract_matrix(urls: list[str]) -> tuple[np.ndarray, list[str], list[str]]:
     """Feature matrix + registered domains (for group splitting)."""
     rows = []
@@ -296,7 +356,10 @@ def main() -> None:
 
     print("Building benign URLs from Tranco ...")
     benign_urls = build_benign_urls(args.benign, rng)
-    print(f"  {len(benign_urls)} benign URLs")
+    extra_benign = build_benign_mainstream_gtld_urls(1500, rng)
+    benign_urls = benign_urls + extra_benign
+    print(f"  {len(benign_urls)} benign URLs "
+          f"(incl. {len(extra_benign)} on mainstream new gTLDs)")
 
     # Drop any benign domain that also appears as a phishing domain.
     phish_regs = {features.registered_domain_of(u) for u in phish_urls}
@@ -378,7 +441,7 @@ def main() -> None:
         "dataset": {
             "phishing_source": "PhishTank online-valid.csv (verified=yes, online=yes)",
             "phishing_count": len(phish_urls),
-            "benign_source": "Tranco top-1m.csv.zip (top 100k domains, full URLs synthesised with realistic paths) + 240 synthetic benign shortener URLs (de-biasing step)",
+            "benign_source": "Tranco top-1m.csv.zip (top 100k domains, full URLs synthesised with realistic paths) + 240 synthetic benign shortener URLs (de-biasing step) + 1,500 benign URLs on mainstream new gTLDs (.online/.site/.shop/.tech/...) from Tranco ranks 100k-1M (Nov 9 de-biasing: the top-100k set almost never shows a legitimate new-gTLD site, which taught the model that those endings mean phishing)",
             "benign_count": len(benign_urls),
             "collected": "2026-11-09",
             "features": len(features.FEATURE_NAMES),

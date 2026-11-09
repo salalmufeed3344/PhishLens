@@ -141,6 +141,26 @@ def test_check_real_paypal_scores_low(client):
     assert b"Low risk" in resp.content
 
 
+def test_check_mainstream_tld_sites_score_low(client):
+    # Regression (Nov 9): '.online' was in the suspicious-TLD list, so the
+    # model flagged Toolixy itself as High risk. Mainstream endings with
+    # heavy legitimate use must never push a clean site above Low on their
+    # own — the ending alone is not evidence of phishing. Assert on the
+    # headline badge, not the words "Low risk" (the page also shows each
+    # detector's own level, which can say Low/Medium on its own).
+    for url in (
+        "https://toolixy.online",
+        "https://example.site",
+        "https://example.tech",
+        "https://example.shop",
+    ):
+        resp = client.post(reverse("check"), {"url": url})
+        assert resp.status_code == 200
+        assert b'badge-low">Low risk' in resp.content, url
+        assert b"badge-medium" not in resp.content, url
+        assert b"badge-high" not in resp.content, url
+
+
 def test_check_at_trick_scores_high(client):
     resp = client.post(
         reverse("check"),

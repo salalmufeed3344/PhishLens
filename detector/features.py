@@ -222,17 +222,22 @@ SHORTENERS = {
 # from x0rz/phishing_catcher's suspicious.yaml). A weak signal on its own.
 # Deliberately NOT included: '.bank' — it is a restricted TLD only real
 # banks can hold, so it is safer, not riskier, than average.
+# Also deliberately NOT included (Nov 9 — a real false positive taught us
+# this): mainstream endings with heavy legitimate use, even if their raw
+# abuse volume is high. '.online' flagged Toolixy itself as High risk
+# because the model learned "this ending = phishing" from the feeds, while
+# millions of real sites use it. A TLD only stays here when abuse
+# dominates its legitimate use. The excluded mainstream endings live in
+# COMMON_TLDS instead, so the model learns them as a legitimate signal.
 SUSPICIOUS_TLDS = {
-    "xyz", "top", "club", "online", "site", "buzz", "click", "link",
-    "work", "live", "fun", "icu", "cyou", "rest", "fit", "today", "vip",
-    "shop", "monster", "quest", "sbs", "lol", "cam", "uno", "zip", "mov",
-    "dad", "phd", "prof", "esq", "foo", "nexus", "ing", "meme", "mom",
-    "day", "boo", "lat", "autos", "boats", "yachts", "cfd",
+    "xyz", "top", "buzz", "click",
+    "vip", "icu", "cyou", "rest", "gdn", "xin", "kim", "men", "ren",
+    "gb", "sbs", "quest", "monster", "uno", "cam", "lol", "dad", "phd",
+    "prof", "esq", "foo", "nexus", "ing", "meme", "mom", "day", "boo",
+    "lat", "autos", "boats", "yachts", "cfd", "zip", "mov",
     # From phishing_catcher (free/abused TLDs seen in the wild 2017-2024).
-    "ga", "gq", "ml", "cf", "tk", "pw", "cc", "support", "info",
-    "study", "country", "stream", "gdn", "xin", "kim", "men", "loan",
-    "download", "racing", "center", "ren", "gb", "win", "review",
-    "party", "tech", "science", "business",
+    "ga", "gq", "ml", "cf", "tk", "pw", "cc", "loan",
+    "download", "win", "review",
 }
 
 # Brands phishers typosquat most often — the names a one- or two-letter
@@ -297,6 +302,11 @@ FREE_HOSTS = {
 COMMON_TLDS = {
     "com", "org", "net", "edu", "gov", "io", "co", "ai", "app", "dev",
     "uk", "de", "fr", "jp", "au", "ca", "in", "nl", "br", "it", "es",
+    # Mainstream generic endings with heavy legitimate use — kept out of
+    # SUSPICIOUS_TLDS on purpose (Nov 9: '.online' flagged a real site).
+    "online", "site", "shop", "live", "tech", "info", "business",
+    "center", "study", "country", "stream", "support", "party",
+    "science", "link", "today", "fit", "club", "work", "fun", "racing",
 }
 
 # ---------------------------------------------------------------------------
