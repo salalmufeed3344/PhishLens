@@ -4,7 +4,7 @@
 <h1>Is this link a phish?</h1>
 <p class="lede">Paste a suspicious link. PhishLens reads the address itself — its
 structure, its domain, the words it uses — and tells you the risk and
-<em>why</em>, in plain language. The link is never opened or visited.</p>
+<strong>why</strong>, in plain language. The link is never opened or visited.</p>
 
 {% if error %}
 <div class="error">{{ error }}</div>
@@ -121,10 +121,10 @@ structure, its domain, the words it uses — and tells you the risk and
     }
     if (currentStep < steps.length) {
       steps[currentStep].classList.add('active');
-      fill.style.width = (currentStep / steps.length * 100) + '%';
+      fill.style.transform = 'scaleX(' + (currentStep / steps.length) + ')';
       stepTimer = setTimeout(advanceStep, 2400);
     } else {
-      fill.style.width = '100%';
+      fill.style.transform = 'scaleX(1)';
     }
   }
 
@@ -134,7 +134,7 @@ structure, its domain, the words it uses — and tells you the risk and
     button.textContent = 'Checking…';
     currentStep = 0;
     steps[0].classList.add('active');
-    fill.style.width = '0%';
+    fill.style.transform = 'scaleX(0)';
     stepTimer = setTimeout(advanceStep, 2200);
   }
 

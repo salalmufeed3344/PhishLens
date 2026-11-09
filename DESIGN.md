@@ -69,3 +69,20 @@ Nothing else moves.
   is a CSS ellipse, not a drawn stroke; it reads as a neat ellipse.
 - WhiteNoise caches static in memory when DEBUG=False: a running server
   serves stale CSS after collectstatic until it is restarted.
+
+## Polish pass (2026-11-09, evening — unslop audit + Impeccable re-check)
+
+Scope was light slop, so polish mode inside this world, no new direction.
+The audit's real finds: every heading rendered at weight 700 because no
+font-weight was set (the browser default did the shouting); about twenty
+spacing values sat off the 4px grid (13px, 22px, 26px, 30px, 34px…);
+the verdict badge was a full pill; the Exhibit A label was uppercase with
+wide tracking; the lede used italic for emphasis; the loading bar animated
+width. Fixed: headings 500, emphasis 600 max, all spacing on the 4px
+grid, badge as a quiet 6px tag, label in sentence case, emphasis by weight
+and colour, bar fill on transform scaleX with one easing curve
+(cubic-bezier(0.22, 1, 0.36, 1)). The font family stays the system
+grotesque stack on purpose — no webfont dependency, works offline. The
+pulse on the active loading step stays: it marks a genuinely live state.
+Re-verified after the pass: 97 tests, Impeccable source `[]`, rendered
+home `[]`, rendered metrics `[]`, fresh lab-*.png screenshots.
