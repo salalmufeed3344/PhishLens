@@ -91,6 +91,49 @@ button, .btn {
   padding: 13px 22px; border-radius: 8px; white-space: nowrap;
 }
 button:hover, .btn:hover { background: #365314; text-decoration: none; }
+button:disabled { opacity: 0.6; cursor: default; }
+button:disabled:hover { background: var(--moss); }
+
+/* Loading state — shown while a check runs */
+.progress-panel {
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  padding: 18px 20px;
+  margin: 16px 0 0;
+}
+.progress-title { font-weight: 700; font-size: 15px; margin-bottom: 10px; }
+.progress-bar {
+  height: 8px; border-radius: 999px; background: var(--line);
+  overflow: hidden; margin-bottom: 12px;
+}
+.progress-fill {
+  height: 8px; border-radius: 999px; background: var(--moss);
+  width: 0%; transition: width 0.6s ease;
+}
+.progress-steps { list-style: none; margin: 0; padding: 0; font-size: 14px; }
+.progress-steps li {
+  padding: 4px 0 4px 22px; position: relative; color: var(--ink-faint);
+}
+.progress-steps li::before {
+  content: ""; position: absolute; left: 2px; top: 11px;
+  width: 8px; height: 8px; border-radius: 50%;
+  border: 1px solid var(--line-strong); background: #fff;
+}
+.progress-steps li.active { color: var(--ink); font-weight: 600; }
+.progress-steps li.active::before {
+  background: var(--moss); border-color: var(--moss);
+  animation: pulse 1.2s ease-in-out infinite;
+}
+.progress-steps li.done { color: var(--moss); }
+.progress-steps li.done::before { background: var(--moss); border-color: var(--moss); }
+@keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.35; } }
+.progress-note { font-size: 13px; color: var(--ink-faint); margin: 10px 0 0; }
+
+@media (max-width: 560px) {
+  .check-form { flex-direction: column; }
+  .check-form button { width: 100%; }
+}
 .btn-ghost {
   background: #fff; color: var(--ink); border: 1px solid var(--line-strong);
 }

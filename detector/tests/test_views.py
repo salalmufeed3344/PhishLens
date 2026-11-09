@@ -217,3 +217,49 @@ def test_result_page_states_https_does_not_mean_safe(client):
     resp = client.post(reverse("check"), {"url": "https://www.google.com/"})
     assert resp.status_code == 200
     assert b"HTTPS does not mean safe" in resp.content
+
+
+def test_check_failure_shows_friendly_error_not_500(client, monkeypatch):
+    """An unexpected analysis failure renders the home page with a retry
+    message instead of a bare 500."""
+    from detector import model as model_api
+
+    def boom(url):
+        raise RuntimeError("model exploded")
+
+    monkeypatch.setattr(model_api, "check_url", boom)
+    resp = client.post(reverse("check"), {"url": "https://www.google.com/"})
+    assert resp.status_code == 200
+    assert b"Something went wrong" in resp.content
+    assert b"try again" in resp.content
+
+
+def test_api_check_failure_returns_500_json(client, monkeypatch):
+    from detector import model as model_api
+
+    def boom(url):
+        raise RuntimeError("model exploded")
+
+    monkeypatch.setattr(model_api, "check_url", boom)
+    resp = client.post(
+        reverse("api_check"),
+        data=json.dumps({"url": "https://www.google.com/"}),
+        content_type="application/json",
+    )
+    assert resp.status_code == 500
+    assert resp.json()["error"].startswith("Something went wrong")
+
+
+def test_unknown_url_renders_custom_404(client):
+    resp = client.get("/this-page-does-not-exist/")
+    assert resp.status_code == 404
+    assert b"This page doesn" in resp.content
+    assert b"Check a link instead" in resp.content
+
+
+def test_home_page_has_loading_state_and_validation(client):
+    resp = client.get(reverse("home"))
+    assert resp.status_code == 200
+    assert b"progress-panel" in resp.content
+    assert b"inline-error" in resp.content
+    assert b"Ctrl+Enter" in resp.content

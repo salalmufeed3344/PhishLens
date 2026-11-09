@@ -1,5 +1,7 @@
 # PhishLens — Explainable Phishing URL Detection
 
+[![CI](https://github.com/salalmufeed3344/PhishLens/actions/workflows/ci.yml/badge.svg)](https://github.com/salalmufeed3344/PhishLens/actions/workflows/ci.yml)
+
 Paste a suspicious link. PhishLens analyses the **URL text alone** — it never
 opens, downloads, or visits the link — and returns a risk verdict (Low /
 Medium / High), a 0–100 score, and plain-language reasons why.

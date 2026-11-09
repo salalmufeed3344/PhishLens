@@ -10,14 +10,27 @@ structure, its domain, the words it uses — and tells you the risk and
 <div class="error">{{ error }}</div>
 {% endif %}
 
-<form class="check-form" action="{% url 'check' %}" method="post">
+<form class="check-form" id="check-form" action="{% url 'check' %}" method="post">
   {% csrf_token %}
-  <input type="text" name="url" placeholder="https://example.com/login?verify=1"
+  <input type="text" id="url-input" name="url" placeholder="https://example.com/login?verify=1"
          value="{{ submitted_url|default:'' }}" autocomplete="off" spellcheck="false"
          aria-label="URL to check" autofocus>
-  <button type="submit">Check link</button>
+  <button type="submit" id="check-button">Check link</button>
 </form>
-<p class="hint">No account. Nothing is stored. The URL is analysed on this server and discarded.</p>
+<div class="error" id="inline-error" role="alert" hidden></div>
+
+<div class="progress-panel" id="progress-panel" hidden aria-live="polite">
+  <div class="progress-title">Analysing the link…</div>
+  <div class="progress-bar"><div class="progress-fill" id="progress-fill"></div></div>
+  <ul class="progress-steps" id="progress-steps">
+    <li data-step="0">Reading the address</li>
+    <li data-step="1">Running the rule detector (29 checks)</li>
+    <li data-step="2">Running the model</li>
+    <li data-step="3">Explaining the result</li>
+  </ul>
+  <p class="progress-note">Usually takes a few seconds — the model runs on a small free server.</p>
+</div>
+<p class="hint">No account. Nothing is stored. The URL is analysed on this server and discarded. Press Ctrl+Enter to check.</p>
 
 <div class="examples">
   Try one:
@@ -61,10 +74,104 @@ structure, its domain, the words it uses — and tells you the risk and
 </div>
 
 <script>
+(function () {
+  var form = document.getElementById('check-form');
+  var input = document.getElementById('url-input');
+  var button = document.getElementById('check-button');
+  var errorBox = document.getElementById('inline-error');
+  var panel = document.getElementById('progress-panel');
+  var fill = document.getElementById('progress-fill');
+  var steps = document.querySelectorAll('#progress-steps li');
+  var stepTimer = null;
+  var currentStep = 0;
+
+  function showError(message) {
+    errorBox.textContent = message;
+    errorBox.hidden = false;
+    input.focus();
+  }
+
+  function clearError() {
+    errorBox.hidden = true;
+    errorBox.textContent = '';
+  }
+
+  function normalise(value) {
+    var v = value.trim();
+    if (!/^[a-zA-Z][a-zA-Z0-9+.-]*:\/\//.test(v)) {
+      v = 'https://' + v;
+    }
+    return v;
+  }
+
+  function isValidUrl(value) {
+    try {
+      var parsed = new URL(value);
+      return !!parsed.hostname && (parsed.hostname.indexOf('.') !== -1 || parsed.hostname === 'localhost');
+    } catch (e) {
+      return false;
+    }
+  }
+
+  function advanceStep() {
+    if (currentStep < steps.length) {
+      steps[currentStep].classList.remove('active');
+      steps[currentStep].classList.add('done');
+      currentStep += 1;
+    }
+    if (currentStep < steps.length) {
+      steps[currentStep].classList.add('active');
+      fill.style.width = (currentStep / steps.length * 100) + '%';
+      stepTimer = setTimeout(advanceStep, 2400);
+    } else {
+      fill.style.width = '100%';
+    }
+  }
+
+  function startProgress() {
+    panel.hidden = false;
+    button.disabled = true;
+    button.textContent = 'Checking…';
+    currentStep = 0;
+    steps[0].classList.add('active');
+    fill.style.width = '0%';
+    stepTimer = setTimeout(advanceStep, 2200);
+  }
+
+  form.addEventListener('submit', function (event) {
+    clearError();
+    var value = input.value.trim();
+    if (!value) {
+      event.preventDefault();
+      showError('Paste a link first.');
+      return;
+    }
+    var normalised = normalise(value);
+    if (!isValidUrl(normalised)) {
+      event.preventDefault();
+      showError('That doesn\u2019t look like a valid link — check it and try again.');
+      return;
+    }
+    input.value = normalised;
+    startProgress();
+  });
+
+  input.addEventListener('input', clearError);
+
+  input.addEventListener('keydown', function (event) {
+    if ((event.ctrlKey || event.metaKey) && event.key === 'Enter') {
+      event.preventDefault();
+      form.requestSubmit();
+    }
+  });
+})();
+
 function fillExample(url) {
   var input = document.querySelector('.check-form input[name="url"]');
   input.value = url;
   input.focus();
+  var errorBox = document.getElementById('inline-error');
+  if (errorBox) { errorBox.hidden = true; }
 }
 </script>
 {% endblock %}

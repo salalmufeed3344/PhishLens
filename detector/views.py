@@ -27,7 +27,18 @@ def home(request):
 @require_http_methods(["POST"])
 def check(request):
     url = request.POST.get("url", "")
-    result = model_api.check_url(url)
+    try:
+        result = model_api.check_url(url)
+    except Exception:
+        # Never show a bare 500 for a failed analysis: keep the user's
+        # URL and invite a retry.
+        return render(request, "detector/home.html", {
+            "error": "Something went wrong while analysing this link. "
+                     "Please try again.",
+            "submitted_url": url,
+            "example_phishing": EXAMPLE_PHISHING,
+            "example_legit": EXAMPLE_LEGIT,
+        })
     if result.get("error"):
         return render(request, "detector/home.html", {
             "error": result["error"],
@@ -60,7 +71,14 @@ def api_check(request):
     except (json.JSONDecodeError, UnicodeDecodeError):
         return JsonResponse({"error": "Request body was not valid JSON."}, status=400)
 
-    result = model_api.check_url(url)
+    try:
+        result = model_api.check_url(url)
+    except Exception:
+        return JsonResponse(
+            {"error": "Something went wrong while analysing this link. "
+                      "Please try again."},
+            status=500,
+        )
     if result.get("error"):
         return JsonResponse({"error": result["error"]}, status=400)
 
