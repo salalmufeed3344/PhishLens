@@ -28,9 +28,26 @@ SECRET_KEY = os.environ.get(
 )
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+# Set DJANGO_DEBUG=True locally for development; production defaults to False.
+DEBUG = os.environ.get('DJANGO_DEBUG', 'False') == 'True'
 
-ALLOWED_HOSTS = ['127.0.0.1', 'localhost']
+# Hosts allowed to serve the app. Override with a comma-separated
+# DJANGO_ALLOWED_HOSTS env var. '.deployxa.online' covers any DeployXA
+# subdomain the app is published under.
+ALLOWED_HOSTS = [
+    h.strip()
+    for h in os.environ.get(
+        'DJANGO_ALLOWED_HOSTS', '127.0.0.1,localhost,.deployxa.online'
+    ).split(',')
+    if h.strip()
+]
+
+# Trust the same hosts for CSRF-protected form posts (the check form).
+CSRF_TRUSTED_ORIGINS = [
+    f'https://{h[1:]}' if h.startswith('.') else f'https://{h}'
+    for h in ALLOWED_HOSTS
+    if h not in ('127.0.0.1', 'localhost')
+]
 
 
 # Application definition
@@ -47,6 +64,7 @@ INSTALLED_APPS = [
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
+    'whitenoise.middleware.WhiteNoiseMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -122,7 +140,10 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/5.1/howto/static-files/
 
 STATIC_URL = 'static/'
+STATIC_ROOT = BASE_DIR / 'staticfiles'
 STATICFILES_DIRS = [BASE_DIR / 'detector' / 'static']
+# Serve collected static files (compressed) without a separate web server.
+STATICFILES_STORAGE = 'whitenoise.storage.CompressedStaticFilesStorage'
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.1/ref/settings/#default-auto-field

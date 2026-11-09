@@ -29,3 +29,7 @@ tldextract==5.1.2
 tqdm==4.70.1
 tzdata==2026.6
 urllib3==2.8.0
+
+# Production server (DeployXA)
+gunicorn==23.0.0
+whitenoise==6.6.0
