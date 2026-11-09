@@ -149,7 +149,20 @@ STATIC_URL = 'static/'
 STATIC_ROOT = BASE_DIR / 'staticfiles'
 STATICFILES_DIRS = [BASE_DIR / 'detector' / 'static']
 # Serve collected static files (compressed) without a separate web server.
-STATICFILES_STORAGE = 'whitenoise.storage.CompressedStaticFilesStorage'
+# Manifest storage: the filename carries a content hash (style.<hash>.css),
+# so a deploy can never be hidden behind a stale cached copy of the old
+# file — the URL itself changes. The unversioned name caused exactly that
+# on the 2026-11-09 redesign deploy (Cloudflare kept serving the old
+# stylesheet for up to 4h after the new code was live). (Django 5.1 removed
+# STATICFILES_STORAGE; the backend lives in STORAGES now.)
+STORAGES = {
+    "default": {
+        "BACKEND": "django.core.files.storage.FileSystemStorage",
+    },
+    "staticfiles": {
+        "BACKEND": "whitenoise.storage.CompressedManifestStaticFilesStorage",
+    },
+}
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.1/ref/settings/#default-auto-field
