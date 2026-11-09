@@ -1,0 +1,70 @@
+{% extends "detector/base.html" %}
+
+{% block content %}
+<h1>Is this link a phish?</h1>
+<p class="lede">Paste a suspicious link. PhishLens reads the address itself — its
+structure, its domain, the words it uses — and tells you the risk and
+<em>why</em>, in plain language. The link is never opened or visited.</p>
+
+{% if error %}
+<div class="error">{{ error }}</div>
+{% endif %}
+
+<form class="check-form" action="{% url 'check' %}" method="post">
+  {% csrf_token %}
+  <input type="text" name="url" placeholder="https://example.com/login?verify=1"
+         value="{{ submitted_url|default:'' }}" autocomplete="off" spellcheck="false"
+         aria-label="URL to check" autofocus>
+  <button type="submit">Check link</button>
+</form>
+<p class="hint">No account. Nothing is stored. The URL is analysed on this server and discarded.</p>
+
+<div class="examples">
+  Try one:
+  <button type="button" onclick="fillExample('{{ example_phishing|escapejs }}')">a suspicious-looking login link</button>
+  or
+  <button type="button" onclick="fillExample('{{ example_legit|escapejs }}')">a normal Wikipedia link</button>
+</div>
+
+<div class="card">
+  <h2>How it works</h2>
+  <ol class="steps">
+    <li>
+      <strong>Feature extraction</strong>
+      <p>45 features are measured from the URL string alone: lengths, dots and subdomains, special characters, whether the host is an IP number, punycode, link shorteners, sensitive words, brand names in the wrong place, and the randomness of the domain name.</p>
+    </li>
+    <li>
+      <strong>Two detectors, side by side</strong>
+      <p>A transparent rule-based detector scores weighted warning signs, and a Random Forest trained on verified PhishTank URLs and Tranco domains gives a phishing probability. The headline score is the average of the two.</p>
+    </li>
+    <li>
+      <strong>Explanations, not just a score</strong>
+      <p>Every triggered rule is listed with its weight, and SHAP attributions from the model are translated into plain sentences — so you learn the warning signs, not just the verdict.</p>
+    </li>
+  </ol>
+  <p class="note">See the <a href="{% url 'metrics' %}">model &amp; metrics page</a> for the real holdout results, the datasets, and the honest limitations.</p>
+</div>
+
+<div class="card">
+  <h2>One paste, every check</h2>
+  <p class="note">A single check runs all of these — including the tricks most people have never heard of:</p>
+  <ul class="reasons">
+    <li><strong>The “@” trick</strong> — everything before @ is ignored; the address you see is a decoy.</li>
+    <li><strong>Typosquat</strong> — a domain one or two letters from a real brand (paypaI, gooogle).</li>
+    <li><strong>Open-redirect laundering</strong> — the link starts on a trusted site but redirects elsewhere.</li>
+    <li><strong>File-extension domains</strong> — invoice.zip looks like a file, but it is a website.</li>
+    <li><strong>Invisible characters</strong> — hidden letters that change what the address really is.</li>
+    <li><strong>Free-hosting logins</strong> — a fake login page on a platform anyone can publish on.</li>
+    <li><strong>Homoglyphs</strong> — look-alike letters from another alphabet impersonating a brand.</li>
+  </ul>
+  <p class="note"><strong>HTTPS does not mean safe.</strong> Most phishing sites now use HTTPS — a padlock means the connection is encrypted, not that the site is honest. PhishLens treats HTTPS as a weak signal only.</p>
+</div>
+
+<script>
+function fillExample(url) {
+  var input = document.querySelector('.check-form input[name="url"]');
+  input.value = url;
+  input.focus();
+}
+</script>
+{% endblock %}

@@ -1,0 +1,25 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+venv/
+
+# Django
+db.sqlite3
+db.sqlite3-journal
+/staticfiles/
+
+# Data + trained model (regenerable: python scripts/train.py)
+data/
+detector/model_artifacts/*.joblib
+
+# Local env / secrets
+.env
+.env.*
+
+# Editors / OS
+.vscode/
+.idea/
+.DS_Store
+.pytest_cache/
