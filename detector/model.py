@@ -217,6 +217,7 @@ def check_url(raw_url: str) -> dict:
             "invisible_kinds": meta["invisible_kinds"],
             "free_host": meta["free_host"],
             "confusable": meta["confusable"],
+            "keyword_hits": meta["keyword_hits"],
         },
         "advice": advice,
     }

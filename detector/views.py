@@ -9,6 +9,7 @@ from django.shortcuts import render
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_http_methods
 
+from . import annotate as annotate_api
 from . import model as model_api
 
 # Example links shown on the home page. The phishing example is a
@@ -46,6 +47,14 @@ def check(request):
             "example_phishing": EXAMPLE_PHISHING,
             "example_legit": EXAMPLE_LEGIT,
         })
+    # Exhibit annotation: circle each finding on the address itself.
+    # It must never break the result page — fall back to no annotation.
+    try:
+        result["annotation"] = annotate_api.annotate_url(
+            result["url"], result.get("tricks"), result["rule_triggered"]
+        )
+    except Exception:
+        result["annotation"] = None
     return render(request, "detector/result.html", {"result": result})
 
 

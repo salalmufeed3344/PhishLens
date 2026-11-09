@@ -9,16 +9,19 @@ saw during training — not estimated, not rounded up. The rule-based
 detector is reported alongside, on the same test set.</p>
 
 {% if metrics.model %}
-<div class="card">
+<section class="section">
   <h2>Random Forest — holdout test results</h2>
-  <div class="metric-grid">
-    <div class="metric"><div class="m-value">{{ metrics.model.test_accuracy }}</div><div class="m-name">Accuracy</div></div>
-    <div class="metric"><div class="m-value">{{ metrics.model.test_precision }}</div><div class="m-name">Precision</div></div>
-    <div class="metric"><div class="m-value">{{ metrics.model.test_recall }}</div><div class="m-name">Recall</div></div>
-    <div class="metric"><div class="m-value">{{ metrics.model.test_f1 }}</div><div class="m-name">F1 score</div></div>
-    <div class="metric"><div class="m-value">{{ metrics.model.test_roc_auc }}</div><div class="m-name">ROC-AUC</div></div>
-    <div class="metric"><div class="m-value">{{ metrics.model.test_false_positive_rate }}</div><div class="m-name">False-positive rate</div></div>
-  </div>
+  <table class="plain">
+    <thead><tr><th>Metric</th><th class="num">Value</th></tr></thead>
+    <tbody>
+      <tr><td>Accuracy</td><td class="num">{{ metrics.model.test_accuracy }}</td></tr>
+      <tr><td>Precision</td><td class="num">{{ metrics.model.test_precision }}</td></tr>
+      <tr><td>Recall</td><td class="num">{{ metrics.model.test_recall }}</td></tr>
+      <tr><td>F1 score</td><td class="num">{{ metrics.model.test_f1 }}</td></tr>
+      <tr><td>ROC-AUC</td><td class="num">{{ metrics.model.test_roc_auc }}</td></tr>
+      <tr><td>False-positive rate</td><td class="num">{{ metrics.model.test_false_positive_rate }}</td></tr>
+    </tbody>
+  </table>
   <table class="plain">
     <thead><tr><th>Confusion matrix (test set)</th><th class="num">Predicted legitimate</th><th class="num">Predicted phishing</th></tr></thead>
     <tbody>
@@ -27,9 +30,9 @@ detector is reported alongside, on the same test set.</p>
     </tbody>
   </table>
   <p class="note">Test set: {{ metrics.splits.test }} URLs ({{ metrics.splits.test_phishing }} phishing). The model is a Random Forest ({{ metrics.model.params.n_estimators }} trees, max depth {{ metrics.model.params.max_depth }}), trained on {{ metrics.dataset.features }} URL-only features.</p>
-</div>
+</section>
 
-<div class="card">
+<section class="section">
   <h2>Headline verdict (both detectors combined)</h2>
   <p>Headline score = 0.5 × rule score + 0.5 × model probability × 100. Thresholds (Low ≤ {{ metrics.thresholds.low_max }}, Medium ≤ {{ metrics.thresholds.medium_max }}) were tuned on the validation set.</p>
   <table class="plain">
@@ -41,9 +44,9 @@ detector is reported alongside, on the same test set.</p>
     </tbody>
   </table>
   <p class="note">The test truth has only two levels (phishing / benign), so “3-level accuracy” counts a Medium verdict as wrong. The High false-alarm rate and recall describe the headline verdict more fairly.</p>
-</div>
+</section>
 
-<div class="card">
+<section class="section">
   <h2>Most important features</h2>
   <table class="plain">
     <thead><tr><th>Feature</th><th class="num">Importance</th></tr></thead>
@@ -53,9 +56,9 @@ detector is reported alongside, on the same test set.</p>
       {% endfor %}
     </tbody>
   </table>
-</div>
+</section>
 
-<div class="card">
+<section class="section">
   <h2>Data &amp; splits</h2>
   <table class="plain">
     <tbody>
@@ -68,9 +71,9 @@ detector is reported alongside, on the same test set.</p>
       <tr><td>Split (train / validation / test)</td><td class="num">{{ metrics.splits.train }} / {{ metrics.splits.validation }} / {{ metrics.splits.test }}</td><td>{{ metrics.splits.grouped_by }}</td></tr>
     </tbody>
   </table>
-</div>
+</section>
 
-<div class="card">
+<section class="section">
   <h2>Honest limitations</h2>
   <ul class="reasons">
     {% for item in metrics.limitations %}
@@ -78,12 +81,12 @@ detector is reported alongside, on the same test set.</p>
     {% endfor %}
     <li class="good">Most checkers that return only a verdict — including the top-ranked ones — explain nothing, and some reject bare domains outright. PhishLens accepts any URL shape and always shows its reasons; that is the gap it fills, not a claim of perfect detection.</li>
   </ul>
-</div>
+</section>
 {% else %}
-<div class="card">
+<section class="section">
   <h2>No trained model yet</h2>
   <p>The model has not been trained in this checkout. Run <code>python scripts/train.py</code> to train it from the public datasets and generate the metrics on this page.</p>
-</div>
+</section>
 {% endif %}
 
 <p class="note">Reproduce everything: <code>python scripts/train.py</code> downloads nothing new (datasets live in <code>data/</code>), rebuilds the model, and rewrites these numbers.</p>

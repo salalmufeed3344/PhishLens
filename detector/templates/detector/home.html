@@ -39,7 +39,7 @@ structure, its domain, the words it uses — and tells you the risk and
   <button type="button" onclick="fillExample('{{ example_legit|escapejs }}')">a normal Wikipedia link</button>
 </div>
 
-<div class="card">
+<section class="section">
   <h2>How it works</h2>
   <ol class="steps">
     <li>
@@ -56,9 +56,9 @@ structure, its domain, the words it uses — and tells you the risk and
     </li>
   </ol>
   <p class="note">See the <a href="{% url 'metrics' %}">model &amp; metrics page</a> for the real holdout results, the datasets, and the honest limitations.</p>
-</div>
+</section>
 
-<div class="card">
+<section class="section">
   <h2>One paste, every check</h2>
   <p class="note">A single check runs all of these — including the tricks most people have never heard of:</p>
   <ul class="reasons">
@@ -71,7 +71,7 @@ structure, its domain, the words it uses — and tells you the risk and
     <li><strong>Homoglyphs</strong> — look-alike letters from another alphabet impersonating a brand.</li>
   </ul>
   <p class="note"><strong>HTTPS does not mean safe.</strong> Most phishing sites now use HTTPS — a padlock means the connection is encrypted, not that the site is honest. PhishLens treats HTTPS as a weak signal only.</p>
-</div>
+</section>
 
 <script>
 (function () {

@@ -4,58 +4,85 @@
 
 {% block content %}
 <h1>Result</h1>
-<p class="url-shown">{{ result.url }}</p>
 
-<div class="card">
-  <div class="verdict-row">
-    <span class="badge badge-{{ result.final_level|lower }}">{{ result.final_level }} risk</span>
-    <div>
-      <div class="score-big">{{ result.final_score }}<small> / 100</small></div>
-      <div class="score-label">Overall risk score</div>
-    </div>
+<div class="verdict-row">
+  <span class="badge badge-{{ result.final_level|lower }}">{{ result.final_level }} risk</span>
+  <div>
+    <div class="score-big">{{ result.final_score }}<small> / 100</small></div>
+    <div class="score-label">Overall risk score</div>
   </div>
-  <div class="gauge">
-    <div class="gauge-track">
-      <div class="gauge-fill {{ result.final_level|lower }}" style="width: {{ result.final_score }}%"></div>
-    </div>
-    <div class="gauge-ticks"><span>0 · Low</span><span>Medium</span><span>High · 100</span></div>
+</div>
+<div class="gauge">
+  <div class="gauge-track">
+    <div class="gauge-fill {{ result.final_level|lower }}" style="width: {{ result.final_score }}%"></div>
   </div>
-  <p class="advice {{ result.final_level|lower }}">{{ result.advice }}</p>
+  <div class="gauge-ticks"><span>0 · Low</span><span>Medium</span><span>High · 100</span></div>
+</div>
+<p class="advice {{ result.final_level|lower }}">{{ result.advice }}</p>
+
+<section class="section">
+  <p class="exhibit-label">Exhibit A — the address as received</p>
+  {% if result.annotation %}
+  <p class="exhibit-url">{% for seg in result.annotation.segments %}{% if seg.mark %}<span class="pencil-mark">{{ seg.text }}<sup>{{ seg.mark }}</sup></span>{% else %}{{ seg.text }}{% endif %}{% endfor %}</p>
+  {% if result.annotation.has_invisible %}
+  <p class="meta-note">Invisible characters in this address are shown as ␣ — they are real, you just cannot see them.</p>
+  {% endif %}
+  {% else %}
+  <p class="exhibit-url">{{ result.url }}</p>
+  {% endif %}
   {% if result.scheme_assumed %}
   <p class="meta-note">No scheme was given, so https:// was assumed for the analysis.</p>
   {% endif %}
-</div>
+</section>
 
-<div class="card">
+<section class="section">
   <h2>HTTPS does not mean safe</h2>
   <p class="note">This link {% if result.url|slice:":5" == "https" %}uses HTTPS{% else %}does not use HTTPS{% endif %} — but that proves almost nothing. Most phishing sites today use HTTPS too: a padlock means the connection is encrypted, not that the site is honest. That is why PhishLens treats HTTPS as a weak signal only, and checks the address itself instead.</p>
-</div>
+</section>
 
-<div class="card">
+<section class="section">
   <h2>Two detectors</h2>
-  <div class="detectors">
-    <div class="detector-box">
-      <div class="d-name">Rule-based detector</div>
-      <div class="d-score">{{ result.rule_score }} / 100</div>
-      <div class="d-note">{{ result.rule_level }} risk · {{ result.rule_triggered|length }} warning sign{{ result.rule_triggered|length|pluralize }} triggered</div>
-    </div>
-    <div class="detector-box">
-      <div class="d-name">Random Forest model</div>
-      {% if result.model_available and result.model_probability is not None %}
-      <div class="d-score">{{ result.model_probability }}%</div>
-      <div class="d-note">{{ result.model_level }} risk · phishing probability</div>
-      {% else %}
-      <div class="d-score">—</div>
-      <div class="d-note">Trained model not loaded{% if result.model_error %}: {{ result.model_error }}{% endif %}. Showing the rule-based check only.</div>
-      {% endif %}
-    </div>
-  </div>
-  <p class="note">The headline score is the average of the two detectors. They agree most of the time; when they disagree, the reasons below show which evidence each one used.</p>
-</div>
+  <table class="detectors">
+    <tbody>
+      <tr>
+        <th scope="row">Rule-based detector</th>
+        <td class="d-score">{{ result.rule_score }} / 100</td>
+        <td class="d-note">{{ result.rule_level }} risk · {{ result.rule_triggered|length }} warning sign{{ result.rule_triggered|length|pluralize }} triggered</td>
+      </tr>
+      <tr>
+        <th scope="row">Random Forest model</th>
+        {% if result.model_available and result.model_probability is not None %}
+        <td class="d-score">{{ result.model_probability }}%</td>
+        <td class="d-note">{{ result.model_level }} risk · phishing probability</td>
+        {% else %}
+        <td class="d-score">—</td>
+        <td class="d-note">Trained model not loaded{% if result.model_error %}: {{ result.model_error }}{% endif %}. Showing the rule-based check only.</td>
+        {% endif %}
+      </tr>
+    </tbody>
+  </table>
+  <p class="note">The headline score is the average of the two detectors. They agree most of the time; when they disagree, the findings below show which evidence each one used.</p>
+</section>
 
-<div class="card">
+<section class="section">
   <h2>Warning signs</h2>
-  {% if result.rule_triggered %}
+  {% if result.annotation and result.annotation.annotations %}
+  <ul class="findings">
+    {% for ann in result.annotation.annotations %}
+    <li{% if not ann.circle %} class="no-circle"{% endif %}>
+      <span class="fnum">{{ ann.num }}</span>
+      <span class="weight">+{{ ann.weight }}</span>
+      <span class="rname">{{ ann.rule_id }} · {{ ann.name }}</span>
+      {{ ann.message }}
+      {% if ann.shares %}
+      <span class="fshare">Circled with {{ ann.shares }} — the same characters.</span>
+      {% elif not ann.circle %}
+      <span class="fshare">No single place to circle — this one describes the whole address.</span>
+      {% endif %}
+    </li>
+    {% endfor %}
+  </ul>
+  {% elif result.rule_triggered %}
   <ul class="reasons">
     {% for rule in result.rule_triggered %}
     <li>
@@ -85,9 +112,9 @@
     {% endfor %}
   </ul>
   {% endif %}
-</div>
+</section>
 
-<div class="card">
+<section class="section">
   <details>
     <summary>Feature breakdown ({{ result.features|length }} features)</summary>
     <div class="details-body">
@@ -102,9 +129,9 @@
       </table>
     </div>
   </details>
-</div>
+</section>
 
-<form action="{% url 'home' %}" method="get" style="margin-top: 8px;">
+<form action="{% url 'home' %}" method="get" style="margin-top: 24px;">
   <button type="submit" class="btn-ghost btn">Check another link</button>
 </form>
 {% endblock %}
