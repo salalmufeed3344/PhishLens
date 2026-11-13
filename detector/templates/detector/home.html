@@ -139,10 +139,10 @@
         <tr><th>Metric</th><th>What it means</th><th class="result">Result</th></tr>
       </thead>
       <tbody>
-        <tr><td>Accuracy</td><td>Share of verdicts that were right</td><td class="result num">91.6%</td></tr>
-        <tr><td>Precision</td><td>Of the links flagged phishing, how many really were</td><td class="result num">92.9%</td></tr>
-        <tr><td>Recall</td><td>Of the real phishing links, how many were caught</td><td class="result num">87.8%</td></tr>
-        <tr><td>ROC-AUC</td><td>How well the model separates phish from legitimate</td><td class="result num">0.969</td></tr>
+        <tr><td>Accuracy</td><td>Share of verdicts that were right</td><td class="result num">{{ teaser_metrics.accuracy|default:"—" }}</td></tr>
+        <tr><td>Precision</td><td>Of the links flagged phishing, how many really were</td><td class="result num">{{ teaser_metrics.precision|default:"—" }}</td></tr>
+        <tr><td>Recall</td><td>Of the real phishing links, how many were caught</td><td class="result num">{{ teaser_metrics.recall|default:"—" }}</td></tr>
+        <tr><td>ROC-AUC</td><td>How well the model separates phish from legitimate</td><td class="result num">{{ teaser_metrics.roc_auc|default:"—" }}</td></tr>
       </tbody>
     </table>
   </div>

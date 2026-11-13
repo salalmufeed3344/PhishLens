@@ -18,10 +18,27 @@ EXAMPLE_PHISHING = "http://paypal-secure-login.com/verify/account/update?session
 EXAMPLE_LEGIT = "https://www.wikipedia.org/wiki/Phishing"
 
 
+def _teaser_metrics() -> dict | None:
+    """Formatted holdout metrics for the home-page teaser, read from the
+    same metrics.json that /metrics renders — so the home numbers can
+    never go stale on a retrain. Returns None when no metrics exist."""
+    model = model_api.get_metrics().get("model") or {}
+    try:
+        return {
+            "accuracy": f"{float(model['test_accuracy']) * 100:.1f}%",
+            "precision": f"{float(model['test_precision']) * 100:.1f}%",
+            "recall": f"{float(model['test_recall']) * 100:.1f}%",
+            "roc_auc": f"{float(model['test_roc_auc']):.3f}",
+        }
+    except (KeyError, TypeError, ValueError):
+        return None
+
+
 def home(request):
     return render(request, "detector/home.html", {
         "example_phishing": EXAMPLE_PHISHING,
         "example_legit": EXAMPLE_LEGIT,
+        "teaser_metrics": _teaser_metrics(),
     })
 
 
@@ -39,6 +56,7 @@ def check(request):
             "submitted_url": url,
             "example_phishing": EXAMPLE_PHISHING,
             "example_legit": EXAMPLE_LEGIT,
+            "teaser_metrics": _teaser_metrics(),
         })
     if result.get("error"):
         return render(request, "detector/home.html", {
@@ -46,6 +64,7 @@ def check(request):
             "submitted_url": url,
             "example_phishing": EXAMPLE_PHISHING,
             "example_legit": EXAMPLE_LEGIT,
+            "teaser_metrics": _teaser_metrics(),
         })
     # Exhibit annotation: circle each finding on the address itself.
     # It must never break the result page — fall back to no annotation.

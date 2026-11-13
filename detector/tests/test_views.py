@@ -21,6 +21,21 @@ def test_home_page_loads(client):
     assert b"Check link" in resp.content
 
 
+def test_home_teaser_shows_live_metrics(client):
+    """The home teaser reads the same metrics.json as /metrics — it must
+    show the live numbers, never a stale hardcoded set."""
+    from detector import model as model_api
+
+    model = model_api.get_metrics()["model"]
+    expected_accuracy = f"{model['test_accuracy'] * 100:.1f}%"
+    expected_roc_auc = f"{model['test_roc_auc']:.3f}"
+    resp = client.get(reverse("home"))
+    assert resp.status_code == 200
+    assert expected_accuracy.encode() in resp.content
+    assert expected_roc_auc.encode() in resp.content
+    assert b"91.6%" not in resp.content
+
+
 def test_metrics_page_loads(client):
     resp = client.get(reverse("metrics"))
     assert resp.status_code == 200
